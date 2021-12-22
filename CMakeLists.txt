@@ -9,14 +9,19 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
+if(NOT CONFIGURE_COMMAND)
+    set(CONFIGURE_COMMAND ${CMAKE_COMMAND})
+endif()
+
 set(DOWNLOADS_DIR ${PROJECT_BINARY_DIR}/downloads)
 set(COMPONENTS_DIR ${PROJECT_BINARY_DIR})
 set(COMPONENT_INSTALL_PREFIX ${PROJECT_BINARY_DIR} CACHE STRING "Install prefix for components ")
-set(COMPONENT_CMAKE_OPTIONS
+set(COMPONENT_COMMON_CMAKE_OPTIONS
     -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX=${COMPONENT_INSTALL_PREFIX}
     -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
     -DCMAKE_PREFIX_PATH=${COMPONENT_INSTALL_PREFIX}
+    -DCONFIGURE_COMMAND=${CONFIGURE_COMMAND}
 )
 
 install(DIRECTORY ${INSTALL_PREFIX}/bin DESTINATION .)
@@ -82,19 +87,27 @@ macro(ExternalComponent component_name git_repository git_tag)
     endif()
     if (BUILD_${component_name})
         set(${component_name} "${component_name}")
+        set(binary_dir build/${component_name})
 
         ExternalProject_Add(${component_name}
             PREFIX ${COMPONENTS_DIR} 
-            CMAKE_ARGS ${COMPONENT_CMAKE_OPTIONS} 
             GIT_PROGRESS ON
             GIT_REPOSITORY ${git_repository} 
             GIT_TAG ${git_tag}
+            CONFIGURE_COMMAND
+                ${CONFIGURE_COMMAND}
+                    -S ${COMPONENTS_DIR}/src/${component_name}
+                    ${COMPONENT_COMMON_CMAKE_OPTIONS}
+                    ${COMPONENTS_CMAKE_OPTIONS}
+                    ${${component_name}_CMAKE_OPTIONS}
+            BINARY_DIR ${binary_dir}
+            INSTALL_DIR ${COMPONENTS_DIR}
         )
         
         ExternalProject_Add_StepDependencies(${component_name} build "${ARGN}")
 
         add_custom_target(clean-${component_name}
-            COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/src/${component_name}-build
+            COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/${binary_dir}
                                      --target clean
         )
         add_dependencies(clean-all clean-${component_name})

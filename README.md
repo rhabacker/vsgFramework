@@ -19,3 +19,14 @@ To build:
 To install headers, libraries and excutables in system or user defined location
 
     sudo make install
+
+To cross compile for Windows (64bit) on openSUSE 15.3:
+
+    sudo zypper ar https://download.opensuse.org/repositories/home:/rhabacker:/branches:/games:/mingw64/openSUSE_Leap_15.3/home:rhabacker:branches:games:mingw64.repo
+    sudo zypper install mingw64-vulkan-devel
+    mkdir vsgFramework-build
+    cd vsgFramework-build
+    CXXFLAGS=-Wl,--enable-stdcall-fixup mingw32-cmake ../vsgFramework -DBUILD_assimp=OFF -DCONFIGURE_COMMAND=/usr/bin/mingw32-cmake \
+        -DVulkanSceneGraph_CMAKE_OPTIONS=-DGLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT_EXITCODE=0;-DGLSLANG_ResourceLimits_maxDualSourceDrawBuffersEXT_EXITCODE__TRYRUN_OUTPUT="
+        -DCOMPONENTS_CMAKE_OPTIONS=-DVulkan_LIBRARY=/usr/x86_64-w64-mingw32/sys-root/mingw/bin/vulkan-1.dll
+    make -j 8
