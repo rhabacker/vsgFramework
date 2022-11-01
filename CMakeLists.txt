@@ -231,3 +231,17 @@ if (${BUILD_vsgExamples})
     )
     FetchContent_MakeAvailable(vsgexamples ${vsg_DEPENDENCY} ${vsgXchange_DEPENDENCY} ${vsgImGui_DEPENDENCY})
 endif()
+
+##############################################################################################################
+#
+# vsgVr
+#
+OPTION(BUILD_vsgVR "Build vsgVR" OFF)
+if (${BUILD_vsgVR})
+    FetchContent_Declare(vsgvr
+        GIT_REPOSITORY "https://github.com/geefr/vsgvr.git"
+        GIT_TAG "main"
+        GIT_PROGRESS TRUE
+    )
+    FetchContent_MakeAvailable(vsgvr)
+endif()
