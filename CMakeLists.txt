@@ -245,3 +245,17 @@ if (${BUILD_vsgVR})
     )
     FetchContent_MakeAvailable(vsgvr)
 endif()
+
+##############################################################################################################
+#
+# vsgVr
+#
+OPTION(BUILD_vsgVROpenVR "Build vsgVR based on openVR" OFF)
+if (${BUILD_vsgVROpenVR})
+    FetchContent_Declare(vsgvropenvr
+        GIT_REPOSITORY "https://github.com/geefr/vsgvr.git"
+        GIT_TAG "openvr-old"
+        GIT_PROGRESS TRUE
+    )
+    FetchContent_MakeAvailable(vsgvropenvr)
+endif()
